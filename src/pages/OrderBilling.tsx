@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useEntities } from '../hooks/useEntities'
 import { Card } from '../components/ui/Card'
+import { Select } from '../components/ui/Field'
 import { formatDurationMinutes, formatMoney, workDurationMinutes } from '../lib/format'
 import { getRoundTrip, type RoundTrip } from '../lib/travel'
 import {
@@ -16,6 +17,7 @@ export default function OrderBilling() {
   const { id } = useParams<{ id: string }>()
   const { orders, customers, loading, customerName } = useEntities()
   const [trip, setTrip] = useState<RoundTrip | null | undefined>(undefined)
+  const [vatRate, setVatRate] = useState(0.21)
 
   const found = orders.find((o) => o.id === id)
   const customer = found ? customers.find((c) => c.id === found.customerId) : undefined
@@ -41,6 +43,8 @@ export default function OrderBilling() {
   const work = workMinutes != null ? laborPrice(workMinutes, customer?.type ?? 'osoba', settings) : null
   const travel = trip ? travelPrice(trip.km, settings) : null
   const total = work != null || travel != null ? (work ?? 0) + (travel ?? 0) : null
+  const vatAmount = total != null ? Math.round(total * vatRate) : null
+  const totalWithVat = total != null ? total + (vatAmount ?? 0) : null
 
   return (
     <div className="space-y-6">
@@ -81,10 +85,33 @@ export default function OrderBilling() {
               <td className="py-2 text-slate-500">Cena za dopravu</td>
               <td className="py-2 text-right">{travel != null ? formatMoney(travel) : '—'}</td>
             </tr>
-            <tr>
+            <tr className="border-b border-slate-100">
               <td className="py-2 font-semibold text-slate-900">Celkem (bez DPH)</td>
               <td className="py-2 text-right font-semibold text-slate-900">
                 {total != null ? formatMoney(total) : '—'}
+              </td>
+            </tr>
+            <tr className="border-b border-slate-100">
+              <td className="py-2 text-slate-500">Sazba DPH</td>
+              <td className="py-2 text-right">
+                <Select
+                  value={vatRate}
+                  onChange={(e) => setVatRate(Number(e.target.value))}
+                  className="ml-auto w-24 py-1 text-right"
+                >
+                  <option value={0.12}>12 %</option>
+                  <option value={0.21}>21 %</option>
+                </Select>
+              </td>
+            </tr>
+            <tr className="border-b border-slate-100">
+              <td className="py-2 text-slate-500">DPH</td>
+              <td className="py-2 text-right">{vatAmount != null ? formatMoney(vatAmount) : '—'}</td>
+            </tr>
+            <tr>
+              <td className="py-2 font-semibold text-slate-900">Celkem s DPH</td>
+              <td className="py-2 text-right font-semibold text-slate-900">
+                {totalWithVat != null ? formatMoney(totalWithVat) : '—'}
               </td>
             </tr>
           </tbody>

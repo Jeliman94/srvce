@@ -26,11 +26,11 @@ export function savePricingSettings(settings: PricingSettings) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
 }
 
-// First started hour is always billed in full; after that, billing rounds up
-// to the nearest started quarter hour.
+// First started hour is always billed in full; after that, every started
+// minute is billed.
 export function billedLaborMinutes(workedMinutes: number): number {
   if (workedMinutes <= 60) return 60
-  return 60 + Math.ceil((workedMinutes - 60) / 15) * 15
+  return Math.ceil(workedMinutes)
 }
 
 export function laborPrice(
