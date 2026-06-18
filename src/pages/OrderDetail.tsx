@@ -13,7 +13,7 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { FieldGroup, Input, Select, Textarea } from '../components/ui/Field'
 import { OrderPriorityBadge, OrderStatusBadge } from '../components/StatusBadge'
-import { formatDateTime, formatMoney } from '../lib/format'
+import { formatDateTime, formatMoney, toDatetimeInputValue } from '../lib/format'
 import { newId, ordersTable } from '../data/repository'
 import type { OrderPart, OrderPriority, ServiceOrder, OrderStatus } from '../types'
 
@@ -275,7 +275,7 @@ export default function OrderDetail() {
               <Input
                 type="datetime-local"
                 disabled={!editable}
-                value={order.scheduledAt?.slice(0, 16) ?? ''}
+                value={toDatetimeInputValue(order.scheduledAt)}
                 onChange={(e) =>
                   patch({ scheduledAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })
                 }

@@ -14,6 +14,13 @@ export function formatDateTime(iso?: string): string {
   })
 }
 
+export function toDatetimeInputValue(iso?: string): string {
+  if (!iso) return ''
+  const date = new Date(iso)
+  const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+  return localTime.toISOString().slice(0, 16)
+}
+
 export function formatMoney(amount: number): string {
   return amount.toLocaleString('cs-CZ', { maximumFractionDigits: 0 }) + ' Kč'
 }
