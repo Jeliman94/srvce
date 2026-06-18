@@ -8,7 +8,6 @@ import Customers from './pages/Customers'
 import CustomerDetail from './pages/CustomerDetail'
 import Orders from './pages/Orders'
 import OrderDetail from './pages/OrderDetail'
-import WorkOrderSheet from './pages/WorkOrderSheet'
 import CalendarPage from './pages/Calendar'
 import CompletedServices from './pages/CompletedServices'
 import Users from './pages/Users'
@@ -30,7 +29,6 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/zakazky" element={<Orders />} />
           <Route path="/zakazky/:id" element={<OrderDetail />} />
-          <Route path="/zakazky/:id/zakazkovy-list" element={<WorkOrderSheet />} />
           <Route path="/kalendar" element={<CalendarPage />} />
           <Route
             path="/hotove-servisy"
