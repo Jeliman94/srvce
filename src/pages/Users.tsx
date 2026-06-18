@@ -6,12 +6,14 @@ import { Button } from '../components/ui/Button'
 import { roleLabels } from '../lib/permissions'
 import { usersTable } from '../data/repository'
 import { UserFormModal } from '../components/UserFormModal'
+import { UserPermissionsModal } from '../components/UserPermissionsModal'
 import type { User } from '../types'
 
 export default function Users() {
   const { user: currentUser } = useAuth()
   const { users, loading, reload } = useEntities()
   const [editing, setEditing] = useState<User | undefined>()
+  const [editingPermissions, setEditingPermissions] = useState<User | undefined>()
   const [showForm, setShowForm] = useState(false)
 
   async function toggleActive(u: User) {
@@ -45,6 +47,9 @@ export default function Users() {
                 <Button variant="secondary" onClick={() => setEditing(u)}>
                   Upravit
                 </Button>
+                <Button variant="secondary" onClick={() => setEditingPermissions(u)}>
+                  Oprávnění
+                </Button>
                 <Button
                   variant="secondary"
                   onClick={() => toggleActive(u)}
@@ -73,6 +78,16 @@ export default function Users() {
           onClose={() => setEditing(undefined)}
           onSaved={() => {
             setEditing(undefined)
+            reload()
+          }}
+        />
+      )}
+      {editingPermissions && (
+        <UserPermissionsModal
+          user={editingPermissions}
+          onClose={() => setEditingPermissions(undefined)}
+          onSaved={() => {
+            setEditingPermissions(undefined)
             reload()
           }}
         />

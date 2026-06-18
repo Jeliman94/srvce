@@ -1,30 +1,46 @@
-import type { Role, User } from '../types'
+import type { PermissionAction, Role, User } from '../types'
 
-type Action =
-  | 'manageUsers'
-  | 'manageCustomers'
-  | 'createOrder'
-  | 'scheduleOrder'
-  | 'deleteOrder'
+export const permissionActions: PermissionAction[] = [
+  'manageUsers',
+  'manageCustomers',
+  'createOrder',
+  'scheduleOrder',
+  'deleteOrder',
+  'editOrder',
+]
 
-const rules: Record<Action, Role[]> = {
+export const actionLabels: Record<PermissionAction, string> = {
+  manageUsers: 'Správa uživatelů',
+  manageCustomers: 'Správa zákazníků',
+  createOrder: 'Vytváření zakázek',
+  scheduleOrder: 'Plánování zakázek (technik a termín)',
+  deleteOrder: 'Mazání zakázek',
+  editOrder: 'Úprava zakázek (stav, materiál, časy)',
+}
+
+// Default permissions by role — used unless a user has an explicit override.
+const defaultRules: Record<PermissionAction, Role[]> = {
   manageUsers: ['admin'],
   manageCustomers: ['admin'],
   createOrder: ['admin'],
   scheduleOrder: ['admin'],
   deleteOrder: ['admin'],
+  editOrder: ['admin', 'technik'],
 }
 
-export function can(user: User | null, action: Action): boolean {
+export function defaultCan(role: Role, action: PermissionAction): boolean {
+  return defaultRules[action].includes(role)
+}
+
+export function can(user: User | null, action: PermissionAction): boolean {
   if (!user) return false
-  return rules[action].includes(user.role)
+  const override = user.permissionOverrides?.[action]
+  if (override !== undefined) return override
+  return defaultCan(user.role, action)
 }
 
-// Any technik can work on any order (arrival/departure time, material, status) —
-// only scheduling (who + when) is restricted to admin via scheduleOrder.
 export function canEditOrder(user: User | null): boolean {
-  if (!user) return false
-  return user.role === 'admin' || user.role === 'technik'
+  return can(user, 'editOrder')
 }
 
 export const roleLabels: Record<Role, string> = {

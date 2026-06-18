@@ -1,5 +1,13 @@
 export type Role = 'admin' | 'technik' | 'fakturace'
 
+export type PermissionAction =
+  | 'manageUsers'
+  | 'manageCustomers'
+  | 'createOrder'
+  | 'scheduleOrder'
+  | 'deleteOrder'
+  | 'editOrder'
+
 export interface User {
   id: string
   name: string
@@ -8,6 +16,7 @@ export interface User {
   role: Role
   active: boolean
   createdAt: string
+  permissionOverrides?: Partial<Record<PermissionAction, boolean>>
 }
 
 export type CustomerType = 'firma' | 'osoba'
