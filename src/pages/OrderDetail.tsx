@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useEntities } from '../hooks/useEntities'
 import { useAuth } from '../context/AuthContext'
@@ -15,20 +15,49 @@ import { FieldGroup, Input, Select, Textarea } from '../components/ui/Field'
 import { OrderPriorityBadge, OrderStatusBadge } from '../components/StatusBadge'
 import { formatDateTime, toDatetimeInputValue } from '../lib/format'
 import { newId, ordersTable } from '../data/repository'
-import type { OrderPart, OrderPriority, ServiceOrder, OrderStatus } from '../types'
+import type { OrderNote, OrderPart, OrderPriority, OrderStatus } from '../types'
+
+interface OrderDraft {
+  status: OrderStatus
+  priority: OrderPriority
+  assignedTechnicianId: string
+  scheduledAt: string
+  workStartedAt: string
+  workEndedAt: string
+  deviceId: string
+  parts: OrderPart[]
+  notes: OrderNote[]
+}
 
 export default function OrderDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { orders, devices, users, loading, reload, customerName, deviceLabel } = useEntities()
+  const { orders, devices, users, loading, customerName, deviceLabel } = useEntities()
   const [noteText, setNoteText] = useState('')
   const [partName, setPartName] = useState('')
   const [partQty, setPartQty] = useState(1)
-
-  if (loading) return <p className="text-sm text-slate-400">Načítání…</p>
+  const [draft, setDraft] = useState<OrderDraft | null>(null)
 
   const found = orders.find((o) => o.id === id)
+
+  useEffect(() => {
+    if (found && draft === null) {
+      setDraft({
+        status: found.status,
+        priority: found.priority,
+        assignedTechnicianId: found.assignedTechnicianId ?? '',
+        scheduledAt: toDatetimeInputValue(found.scheduledAt),
+        workStartedAt: toDatetimeInputValue(found.workStartedAt),
+        workEndedAt: toDatetimeInputValue(found.workEndedAt),
+        deviceId: found.deviceId ?? '',
+        parts: found.parts,
+        notes: found.notes,
+      })
+    }
+  }, [found, draft])
+
+  if (loading || !draft) return <p className="text-sm text-slate-400">Načítání…</p>
   if (!found) return <p className="text-sm text-slate-500">Zakázka nenalezena.</p>
   const order = found
 
@@ -36,28 +65,27 @@ export default function OrderDetail() {
   const technicians = users.filter((u) => u.role === 'technik')
   const customerDevices = devices.filter((d) => d.customerId === order.customerId)
 
-  async function patch(data: Partial<ServiceOrder>) {
-    await ordersTable.update(order.id, data)
-    reload()
+  function update(patch: Partial<OrderDraft>) {
+    setDraft((d) => (d ? { ...d, ...patch } : d))
   }
 
-  async function handleAddNote() {
+  const handleAddNote = () => {
     if (!noteText.trim() || !user) return
-    const note = { id: newId(), authorId: user.id, text: noteText.trim(), createdAt: new Date().toISOString() }
-    await patch({ notes: [...order.notes, note] })
+    const note: OrderNote = { id: newId(), authorId: user.id, text: noteText.trim(), createdAt: new Date().toISOString() }
+    update({ notes: [...draft.notes, note] })
     setNoteText('')
   }
 
-  async function handleAddPart() {
+  const handleAddPart = () => {
     if (!partName.trim()) return
     const part: OrderPart = { id: newId(), name: partName.trim(), qty: partQty, unitPrice: 0 }
-    await patch({ parts: [...order.parts, part] })
+    update({ parts: [...draft.parts, part] })
     setPartName('')
     setPartQty(1)
   }
 
-  async function handleRemovePart(partId: string) {
-    await patch({ parts: order.parts.filter((p) => p.id !== partId) })
+  const handleRemovePart = (partId: string) => {
+    update({ parts: draft.parts.filter((p) => p.id !== partId) })
   }
 
   async function handleDelete() {
@@ -66,9 +94,19 @@ export default function OrderDetail() {
     navigate('/zakazky')
   }
 
-  async function handleMarkDone() {
-    if (!confirm(`Potvrdit, že je servis zakázky ${order.number} hotový?`)) return
-    await patch({ status: 'hotovo', completedAt: new Date().toISOString() })
+  const handleConfirm = async () => {
+    await ordersTable.update(order.id, {
+      status: draft.status,
+      priority: draft.priority,
+      assignedTechnicianId: draft.assignedTechnicianId || undefined,
+      scheduledAt: draft.scheduledAt ? new Date(draft.scheduledAt).toISOString() : undefined,
+      workStartedAt: draft.workStartedAt ? new Date(draft.workStartedAt).toISOString() : undefined,
+      workEndedAt: draft.workEndedAt ? new Date(draft.workEndedAt).toISOString() : undefined,
+      deviceId: draft.deviceId || undefined,
+      parts: draft.parts,
+      notes: draft.notes,
+      ...(draft.status === 'hotovo' ? { completedAt: new Date().toISOString() } : {}),
+    })
     navigate('/zakazky')
   }
 
@@ -93,8 +131,8 @@ export default function OrderDetail() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <OrderStatusBadge status={order.status} />
-          <OrderPriorityBadge priority={order.priority} />
+          <OrderStatusBadge status={draft.status} />
+          <OrderPriorityBadge priority={draft.priority} />
           {can(user, 'deleteOrder') && (
             <Button variant="danger" onClick={handleDelete}>
               Smazat
@@ -121,7 +159,7 @@ export default function OrderDetail() {
                 </tr>
               </thead>
               <tbody>
-                {order.parts.map((p) => (
+                {draft.parts.map((p) => (
                   <tr key={p.id} className="border-t border-slate-100">
                     <td className="py-2">{p.name}</td>
                     <td className="py-2">{p.qty}</td>
@@ -165,8 +203,8 @@ export default function OrderDetail() {
           <Card className="p-5">
             <h2 className="mb-3 text-sm font-semibold text-slate-900">Historie a poznámky</h2>
             <ul className="space-y-3">
-              {order.notes.length === 0 && <p className="text-sm text-slate-400">Žádné poznámky.</p>}
-              {order.notes
+              {draft.notes.length === 0 && <p className="text-sm text-slate-400">Žádné poznámky.</p>}
+              {draft.notes
                 .slice()
                 .reverse()
                 .map((n) => (
@@ -200,8 +238,8 @@ export default function OrderDetail() {
             <FieldGroup label="Stav">
               <Select
                 disabled={!editable}
-                value={order.status}
-                onChange={(e) => patch({ status: e.target.value as OrderStatus })}
+                value={draft.status}
+                onChange={(e) => update({ status: e.target.value as OrderStatus })}
               >
                 {[...orderStatusOrder, 'zrusena' as OrderStatus].map((s) => (
                   <option key={s} value={s}>
@@ -213,8 +251,8 @@ export default function OrderDetail() {
             <FieldGroup label="Priorita">
               <Select
                 disabled={!editable}
-                value={order.priority}
-                onChange={(e) => patch({ priority: e.target.value as OrderPriority })}
+                value={draft.priority}
+                onChange={(e) => update({ priority: e.target.value as OrderPriority })}
               >
                 {Object.entries(orderPriorityLabels).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -226,8 +264,8 @@ export default function OrderDetail() {
             <FieldGroup label="Technik">
               <Select
                 disabled={!can(user, 'scheduleOrder')}
-                value={order.assignedTechnicianId ?? ''}
-                onChange={(e) => patch({ assignedTechnicianId: e.target.value || undefined })}
+                value={draft.assignedTechnicianId}
+                onChange={(e) => update({ assignedTechnicianId: e.target.value })}
               >
                 <option value="">Nepřiřazeno</option>
                 {technicians.map((t) => (
@@ -241,12 +279,12 @@ export default function OrderDetail() {
               <Input
                 type="datetime-local"
                 disabled={!can(user, 'scheduleOrder')}
-                value={toDatetimeInputValue(order.scheduledAt)}
+                value={draft.scheduledAt}
                 onChange={(e) => {
-                  const scheduledAt = e.target.value ? new Date(e.target.value).toISOString() : undefined
-                  patch({
+                  const scheduledAt = e.target.value
+                  update({
                     scheduledAt,
-                    ...(scheduledAt && order.status === 'nova' ? { status: 'naplanovana' } : {}),
+                    ...(scheduledAt && draft.status === 'nova' ? { status: 'naplanovana' } : {}),
                   })
                 }}
               />
@@ -255,26 +293,22 @@ export default function OrderDetail() {
               <Input
                 type="datetime-local"
                 disabled={!editable}
-                value={toDatetimeInputValue(order.workStartedAt)}
-                onChange={(e) =>
-                  patch({ workStartedAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })
-                }
+                value={draft.workStartedAt}
+                onChange={(e) => update({ workStartedAt: e.target.value })}
               />
             </FieldGroup>
             <FieldGroup label="Čas odjezdu">
               <Input
                 type="datetime-local"
                 disabled={!editable}
-                value={toDatetimeInputValue(order.workEndedAt)}
-                onChange={(e) =>
-                  patch({ workEndedAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })
-                }
+                value={draft.workEndedAt}
+                onChange={(e) => update({ workEndedAt: e.target.value })}
               />
             </FieldGroup>
-            {editable && order.status !== 'zrusena' && (
+            {editable && draft.status !== 'zrusena' && (
               <label
                 className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium ${
-                  order.status === 'hotovo'
+                  draft.status === 'hotovo'
                     ? 'cursor-default border-emerald-200 bg-emerald-50 text-emerald-700'
                     : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
                 }`}
@@ -282,19 +316,19 @@ export default function OrderDetail() {
                 <input
                   type="checkbox"
                   className="h-4 w-4"
-                  checked={order.status === 'hotovo'}
-                  disabled={order.status === 'hotovo'}
-                  onChange={handleMarkDone}
+                  checked={draft.status === 'hotovo'}
+                  disabled={draft.status === 'hotovo'}
+                  onChange={() => update({ status: 'hotovo' })}
                 />
                 Servis hotov
               </label>
             )}
-            {order.deviceId && customerDevices.length > 0 && (
+            {draft.deviceId && customerDevices.length > 0 && (
               <FieldGroup label="Zařízení">
                 <Select
                   disabled={!editable}
-                  value={order.deviceId}
-                  onChange={(e) => patch({ deviceId: e.target.value || undefined })}
+                  value={draft.deviceId}
+                  onChange={(e) => update({ deviceId: e.target.value })}
                 >
                   {customerDevices.map((d) => (
                     <option key={d.id} value={d.id}>
@@ -307,6 +341,12 @@ export default function OrderDetail() {
           </div>
         </Card>
       </div>
+
+      {editable && (
+        <div className="flex justify-end">
+          <Button onClick={handleConfirm}>Potvrdit</Button>
+        </div>
+      )}
     </div>
   )
 }
