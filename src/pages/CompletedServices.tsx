@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom'
 import { useEntities } from '../hooks/useEntities'
 import { Card } from '../components/ui/Card'
 import { formatDate, formatDurationMinutes, workDurationMinutes } from '../lib/format'
-import { getRoundTripMinutes } from '../lib/travel'
+import { getRoundTrip, type RoundTrip } from '../lib/travel'
 import type { OrderStatus } from '../types'
 
 const COMPLETED_STATUSES: OrderStatus[] = ['hotovo', 'fakturovano']
 
 export default function CompletedServices() {
   const { orders, customers, loading, customerName, technicianName } = useEntities()
-  const [travelMinutes, setTravelMinutes] = useState<Record<string, number | null>>({})
+  const [travel, setTravel] = useState<Record<string, RoundTrip | null>>({})
 
   const completed = useMemo(
     () =>
@@ -37,9 +37,9 @@ export default function CompletedServices() {
     async function run() {
       for (const { customerId, address } of travelTargets) {
         if (cancelled) return
-        const minutes = await getRoundTripMinutes(address)
+        const result = await getRoundTrip(address)
         if (cancelled) return
-        setTravelMinutes((prev) => ({ ...prev, [customerId]: minutes }))
+        setTravel((prev) => ({ ...prev, [customerId]: result }))
       }
     }
     run()
@@ -70,13 +70,14 @@ export default function CompletedServices() {
               <th className="px-4 py-3">Datum</th>
               <th className="px-4 py-3">Práce</th>
               <th className="px-4 py-3">Cesta</th>
+              <th className="px-4 py-3">Km</th>
               <th className="px-4 py-3">Celkem</th>
             </tr>
           </thead>
           <tbody>
             {completed.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-4 text-sm text-slate-400">
+                <td colSpan={8} className="px-4 py-4 text-sm text-slate-400">
                   Žádné hotové servisy.
                 </td>
               </tr>
@@ -84,8 +85,9 @@ export default function CompletedServices() {
             {completed.map((order) => {
               const customer = customers.find((c) => c.id === order.customerId)
               const workMinutes = workDurationMinutes(order.workStartedAt, order.workEndedAt)
-              const travel = customer ? travelMinutes[customer.id] : undefined
-              const total = workMinutes != null || travel != null ? (workMinutes ?? 0) + (travel ?? 0) : null
+              const trip = customer ? travel[customer.id] : undefined
+              const total =
+                workMinutes != null || trip != null ? (workMinutes ?? 0) + (trip?.minutes ?? 0) : null
               return (
                 <tr key={order.id} className="border-b border-slate-100">
                   <td className="px-4 py-3">
@@ -100,8 +102,9 @@ export default function CompletedServices() {
                   </td>
                   <td className="px-4 py-3">{formatDurationMinutes(workMinutes)}</td>
                   <td className="px-4 py-3">
-                    {travel === undefined && customer ? 'Počítání…' : formatDurationMinutes(travel)}
+                    {trip === undefined && customer ? 'Počítání…' : formatDurationMinutes(trip?.minutes)}
                   </td>
+                  <td className="px-4 py-3">{trip ? `${trip.km} km` : '—'}</td>
                   <td className="px-4 py-3 font-medium">{formatDurationMinutes(total)}</td>
                 </tr>
               )

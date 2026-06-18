@@ -27,6 +27,15 @@ npm install
 npm run dev
 ```
 
+Report „Hotové servisy" počítá čas cesty a kilometry k zákazníkovi a zpět
+přes [Mapy.cz API](https://api.mapy.cz) (stejný výpočet jako
+compact-hk.cz/servis/cesty: čas/vzdálenost jedné cesty firma → zákazník
+× 2). Vyžaduje API klíč v proměnné `VITE_MAPY_API_KEY` – zkopírujte
+`.env.example` do `.env` a klíč doplňte. Bez něj report zobrazí u cesty „—".
+Pro nasazení na GitHub Pages je potřeba klíč uložit jako repository secret
+`VITE_MAPY_API_KEY` (Settings → Secrets and variables → Actions) – workflow
+`.github/workflows/deploy-pages.yml` ho při buildu předá do `npm run build`.
+
 Aplikace se otevře na `http://localhost:5173`. Na přihlašovací obrazovce
 vyberte jednoho z demo uživatelů (bez hesla) – `Jana Nováková` (admin),
 `Petr Svoboda` / `Tomáš Dvořák` (technik), `Lucie Horáková` (fakturace).
