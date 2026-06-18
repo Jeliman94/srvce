@@ -281,6 +281,26 @@ export default function OrderDetail() {
                 }
               />
             </FieldGroup>
+            <FieldGroup label="Začátek servisu">
+              <Input
+                type="datetime-local"
+                disabled={!editable}
+                value={toDatetimeInputValue(order.workStartedAt)}
+                onChange={(e) =>
+                  patch({ workStartedAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })
+                }
+              />
+            </FieldGroup>
+            <FieldGroup label="Konec servisu">
+              <Input
+                type="datetime-local"
+                disabled={!editable}
+                value={toDatetimeInputValue(order.workEndedAt)}
+                onChange={(e) =>
+                  patch({ workEndedAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })
+                }
+              />
+            </FieldGroup>
             {order.deviceId && customerDevices.length > 0 && (
               <FieldGroup label="Zařízení">
                 <Select

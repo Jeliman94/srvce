@@ -65,6 +65,8 @@ create table service_orders (
   description text not null,
   assigned_technician_id uuid references users (id) on delete set null,
   scheduled_at timestamptz,
+  work_started_at timestamptz,
+  work_ended_at timestamptz,
   completed_at timestamptz,
   labor_price numeric(10, 2) not null default 0,
   created_at timestamptz not null default now(),

@@ -81,6 +81,8 @@ export interface ServiceOrder {
   description: string
   assignedTechnicianId?: string
   scheduledAt?: string
+  workStartedAt?: string
+  workEndedAt?: string
   completedAt?: string
   parts: OrderPart[]
   laborPrice: number
