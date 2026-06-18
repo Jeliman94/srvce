@@ -12,6 +12,7 @@ import { formatDate } from '../lib/format'
 import type { OrderStatus } from '../types'
 import { ordersTable } from '../data/repository'
 import { OrderFormModal } from '../components/OrderFormModal'
+import { EmailImportModal } from '../components/EmailImportModal'
 
 export default function Orders() {
   const { user } = useAuth()
@@ -20,6 +21,7 @@ export default function Orders() {
   const [technicianFilter, setTechnicianFilter] = useState('all')
   const [mineOnly, setMineOnly] = useState(user?.role === 'technik')
   const [showForm, setShowForm] = useState(false)
+  const [showEmailImport, setShowEmailImport] = useState(false)
 
   const technicians = users.filter((u) => u.role === 'technik')
 
@@ -46,7 +48,14 @@ export default function Orders() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-slate-900">Zakázky</h1>
-        {can(user, 'createOrder') && <Button onClick={() => setShowForm(true)}>+ Nová zakázka</Button>}
+        {can(user, 'createOrder') && (
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setShowEmailImport(true)}>
+              Importovat z e-mailu
+            </Button>
+            <Button onClick={() => setShowForm(true)}>+ Nová zakázka</Button>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -133,6 +142,16 @@ export default function Orders() {
           onClose={() => setShowForm(false)}
           onSaved={() => {
             setShowForm(false)
+            reload()
+          }}
+        />
+      )}
+
+      {showEmailImport && (
+        <EmailImportModal
+          onClose={() => setShowEmailImport(false)}
+          onSaved={() => {
+            setShowEmailImport(false)
             reload()
           }}
         />
