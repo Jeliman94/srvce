@@ -13,7 +13,7 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { FieldGroup, Input, Select, Textarea } from '../components/ui/Field'
 import { OrderPriorityBadge, OrderStatusBadge } from '../components/StatusBadge'
-import { formatDateTime, formatMoney, toDatetimeInputValue } from '../lib/format'
+import { formatDateTime, toDatetimeInputValue } from '../lib/format'
 import { newId, ordersTable } from '../data/repository'
 import type { OrderPart, OrderPriority, ServiceOrder, OrderStatus } from '../types'
 
@@ -25,7 +25,6 @@ export default function OrderDetail() {
   const [noteText, setNoteText] = useState('')
   const [partName, setPartName] = useState('')
   const [partQty, setPartQty] = useState(1)
-  const [partPrice, setPartPrice] = useState(0)
 
   if (loading) return <p className="text-sm text-slate-400">Načítání…</p>
 
@@ -36,8 +35,6 @@ export default function OrderDetail() {
   const editable = canEditOrder(user)
   const technicians = users.filter((u) => u.role === 'technik')
   const customerDevices = devices.filter((d) => d.customerId === order.customerId)
-  const partsTotal = order.parts.reduce((sum, p) => sum + p.qty * p.unitPrice, 0)
-  const total = partsTotal + order.laborPrice
 
   async function patch(data: Partial<ServiceOrder>) {
     await ordersTable.update(order.id, data)
@@ -53,11 +50,10 @@ export default function OrderDetail() {
 
   async function handleAddPart() {
     if (!partName.trim()) return
-    const part: OrderPart = { id: newId(), name: partName.trim(), qty: partQty, unitPrice: partPrice }
+    const part: OrderPart = { id: newId(), name: partName.trim(), qty: partQty, unitPrice: 0 }
     await patch({ parts: [...order.parts, part] })
     setPartName('')
     setPartQty(1)
-    setPartPrice(0)
   }
 
   async function handleRemovePart(partId: string) {
@@ -115,8 +111,6 @@ export default function OrderDetail() {
                 <tr className="text-left text-xs text-slate-400">
                   <th className="pb-2">Položka</th>
                   <th className="pb-2">Ks</th>
-                  <th className="pb-2">Cena/ks</th>
-                  <th className="pb-2">Celkem</th>
                   {editable && <th />}
                 </tr>
               </thead>
@@ -125,8 +119,6 @@ export default function OrderDetail() {
                   <tr key={p.id} className="border-t border-slate-100">
                     <td className="py-2">{p.name}</td>
                     <td className="py-2">{p.qty}</td>
-                    <td className="py-2">{formatMoney(p.unitPrice)}</td>
-                    <td className="py-2">{formatMoney(p.qty * p.unitPrice)}</td>
                     {editable && (
                       <td className="py-2 text-right">
                         <button
@@ -139,36 +131,11 @@ export default function OrderDetail() {
                     )}
                   </tr>
                 ))}
-                <tr className="border-t border-slate-100">
-                  <td className="py-2 text-slate-500">Práce technika</td>
-                  <td colSpan={2}></td>
-                  <td className="py-2">
-                    {editable ? (
-                      <Input
-                        type="number"
-                        min={0}
-                        value={order.laborPrice}
-                        onChange={(e) => patch({ laborPrice: Number(e.target.value) })}
-                        className="w-28 py-1"
-                      />
-                    ) : (
-                      formatMoney(order.laborPrice)
-                    )}
-                  </td>
-                </tr>
               </tbody>
-              <tfoot>
-                <tr className="border-t border-slate-200 font-semibold">
-                  <td className="py-2" colSpan={3}>
-                    Celkem
-                  </td>
-                  <td className="py-2">{formatMoney(total)}</td>
-                </tr>
-              </tfoot>
             </table>
 
             {editable && (
-              <div className="mt-4 grid grid-cols-4 gap-2">
+              <div className="mt-4 grid grid-cols-3 gap-2">
                 <Input
                   placeholder="Název dílu"
                   value={partName}
@@ -182,14 +149,7 @@ export default function OrderDetail() {
                   onChange={(e) => setPartQty(Number(e.target.value))}
                   placeholder="Ks"
                 />
-                <Input
-                  type="number"
-                  min={0}
-                  value={partPrice}
-                  onChange={(e) => setPartPrice(Number(e.target.value))}
-                  placeholder="Cena/ks"
-                />
-                <Button type="button" variant="secondary" onClick={handleAddPart} className="col-span-4">
+                <Button type="button" variant="secondary" onClick={handleAddPart} className="col-span-3">
                   + Přidat položku
                 </Button>
               </div>
