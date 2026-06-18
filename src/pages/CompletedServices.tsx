@@ -64,6 +64,7 @@ export default function CompletedServices() {
               <th className="px-4 py-3">Zakázka</th>
               <th className="px-4 py-3">Zákazník</th>
               <th className="px-4 py-3">Technik</th>
+              <th className="px-4 py-3">Materiál</th>
               <th className="px-4 py-3">Datum</th>
               <th className="px-4 py-3">Práce</th>
               <th className="px-4 py-3">Cesta</th>
@@ -74,7 +75,7 @@ export default function CompletedServices() {
           <tbody>
             {completed.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-4 text-sm text-slate-400">
+                <td colSpan={9} className="px-4 py-4 text-sm text-slate-400">
                   Žádné hotové servisy.
                 </td>
               </tr>
@@ -94,6 +95,11 @@ export default function CompletedServices() {
                   </td>
                   <td className="px-4 py-3 text-slate-700">{customerName(order.customerId)}</td>
                   <td className="px-4 py-3 text-slate-700">{technicianName(order.assignedTechnicianId)}</td>
+                  <td className="px-4 py-3 text-slate-500">
+                    {order.parts.length === 0
+                      ? '—'
+                      : order.parts.map((p) => `${p.name} ×${p.qty}`).join(', ')}
+                  </td>
                   <td className="px-4 py-3 text-slate-500">
                     {formatDate(order.completedAt ?? order.workEndedAt ?? order.scheduledAt)}
                   </td>
