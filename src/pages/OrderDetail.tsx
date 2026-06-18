@@ -67,7 +67,9 @@ export default function OrderDetail() {
   }
 
   async function handleMarkDone() {
+    if (!confirm(`Potvrdit, že je servis zakázky ${order.number} hotový?`)) return
     await patch({ status: 'hotovo', completedAt: new Date().toISOString() })
+    navigate('/zakazky')
   }
 
   function authorName(authorId: string) {
@@ -93,9 +95,6 @@ export default function OrderDetail() {
         <div className="flex items-center gap-2">
           <OrderStatusBadge status={order.status} />
           <OrderPriorityBadge priority={order.priority} />
-          {editable && !['hotovo', 'zrusena'].includes(order.status) && (
-            <Button onClick={handleMarkDone}>Hotovo</Button>
-          )}
           {can(user, 'deleteOrder') && (
             <Button variant="danger" onClick={handleDelete}>
               Smazat
@@ -272,6 +271,24 @@ export default function OrderDetail() {
                 }
               />
             </FieldGroup>
+            {editable && order.status !== 'zrusena' && (
+              <label
+                className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium ${
+                  order.status === 'hotovo'
+                    ? 'cursor-default border-emerald-200 bg-emerald-50 text-emerald-700'
+                    : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  className="h-4 w-4"
+                  checked={order.status === 'hotovo'}
+                  disabled={order.status === 'hotovo'}
+                  onChange={handleMarkDone}
+                />
+                Servis hotov
+              </label>
+            )}
             {order.deviceId && customerDevices.length > 0 && (
               <FieldGroup label="Zařízení">
                 <Select
