@@ -93,7 +93,7 @@ export default function OrderDetail() {
         <div className="flex items-center gap-2">
           <OrderStatusBadge status={order.status} />
           <OrderPriorityBadge priority={order.priority} />
-          {editable && !['hotovo', 'fakturovano', 'zrusena'].includes(order.status) && (
+          {editable && !['hotovo', 'zrusena'].includes(order.status) && (
             <Button onClick={handleMarkDone}>Hotovo</Button>
           )}
           {can(user, 'deleteOrder') && (

@@ -4,9 +4,6 @@ import { useEntities } from '../hooks/useEntities'
 import { Card } from '../components/ui/Card'
 import { formatDate, formatDurationMinutes, workDurationMinutes } from '../lib/format'
 import { getRoundTrip, type RoundTrip } from '../lib/travel'
-import type { OrderStatus } from '../types'
-
-const COMPLETED_STATUSES: OrderStatus[] = ['hotovo', 'fakturovano']
 
 export default function CompletedServices() {
   const { orders, customers, loading, customerName, technicianName } = useEntities()
@@ -15,7 +12,7 @@ export default function CompletedServices() {
   const completed = useMemo(
     () =>
       orders
-        .filter((o) => COMPLETED_STATUSES.includes(o.status))
+        .filter((o) => o.status === 'hotovo')
         .sort((a, b) => (b.completedAt ?? b.workEndedAt ?? '').localeCompare(a.completedAt ?? a.workEndedAt ?? '')),
     [orders],
   )

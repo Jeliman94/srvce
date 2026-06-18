@@ -48,10 +48,8 @@ export type OrderType = 'oprava' | 'servis' | 'instalace' | 'revize'
 export type OrderStatus =
   | 'nova'
   | 'naplanovana'
-  | 'probiha'
   | 'ceka_na_dily'
   | 'hotovo'
-  | 'fakturovano'
   | 'zrusena'
 
 export type OrderPriority = 'nizka' | 'normalni' | 'vysoka' | 'havarie'

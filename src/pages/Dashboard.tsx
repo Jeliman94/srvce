@@ -5,7 +5,7 @@ import { OrderPriorityBadge, OrderStatusBadge } from '../components/StatusBadge'
 import { formatDateTime } from '../lib/format'
 import { useAuth } from '../context/AuthContext'
 
-const OPEN_STATUSES = ['nova', 'naplanovana', 'probiha', 'ceka_na_dily']
+const OPEN_STATUSES = ['nova', 'naplanovana', 'ceka_na_dily']
 
 export default function Dashboard() {
   const { user } = useAuth()
