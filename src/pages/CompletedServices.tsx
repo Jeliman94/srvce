@@ -2,11 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useEntities } from '../hooks/useEntities'
 import { Card } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
 import { formatDate, formatDurationMinutes, workDurationMinutes } from '../lib/format'
 import { getRoundTrip, type RoundTrip } from '../lib/travel'
+import { ordersTable } from '../data/repository'
+import type { ServiceOrder } from '../types'
 
 export default function CompletedServices() {
-  const { orders, customers, loading, customerName, technicianName } = useEntities()
+  const { orders, customers, loading, customerName, technicianName, reload } = useEntities()
   const [travel, setTravel] = useState<Record<string, RoundTrip | null>>({})
 
   const completed = useMemo(
@@ -45,6 +48,11 @@ export default function CompletedServices() {
     }
   }, [travelTargets])
 
+  async function handleToggleInvoiced(order: ServiceOrder) {
+    await ordersTable.update(order.id, { invoiced: !order.invoiced })
+    reload()
+  }
+
   if (loading) return <p className="text-sm text-slate-400">Načítání…</p>
 
   return (
@@ -70,12 +78,13 @@ export default function CompletedServices() {
               <th className="px-4 py-3">Cesta</th>
               <th className="px-4 py-3">Km</th>
               <th className="px-4 py-3">Celkem</th>
+              <th className="px-4 py-3">Fakturace</th>
             </tr>
           </thead>
           <tbody>
             {completed.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-4 text-sm text-slate-400">
+                <td colSpan={10} className="px-4 py-4 text-sm text-slate-400">
                   Žádné hotové servisy.
                 </td>
               </tr>
@@ -87,7 +96,10 @@ export default function CompletedServices() {
               const total =
                 workMinutes != null || trip != null ? (workMinutes ?? 0) + (trip?.minutes ?? 0) : null
               return (
-                <tr key={order.id} className="border-b border-slate-100">
+                <tr
+                  key={order.id}
+                  className={`border-b border-slate-100 ${order.invoiced ? 'bg-emerald-50' : 'bg-rose-50'}`}
+                >
                   <td className="px-4 py-3">
                     <Link to={`/zakazky/${order.id}`} className="font-medium text-slate-900 hover:underline">
                       {order.number}
@@ -109,6 +121,15 @@ export default function CompletedServices() {
                   </td>
                   <td className="px-4 py-3">{trip ? `${trip.km} km` : '—'}</td>
                   <td className="px-4 py-3 font-medium">{formatDurationMinutes(total)}</td>
+                  <td className="px-4 py-3">
+                    <Button
+                      variant={order.invoiced ? 'secondary' : 'primary'}
+                      className="text-xs"
+                      onClick={() => handleToggleInvoiced(order)}
+                    >
+                      {order.invoiced ? 'Fakturováno ✓' : 'Fakturováno'}
+                    </Button>
+                  </td>
                 </tr>
               )
             })}

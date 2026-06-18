@@ -74,6 +74,7 @@ export interface ServiceOrder {
   workStartedAt?: string
   workEndedAt?: string
   completedAt?: string
+  invoiced?: boolean
   parts: OrderPart[]
   laborPrice: number
   notes: OrderNote[]
