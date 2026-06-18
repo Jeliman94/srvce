@@ -16,7 +16,7 @@ import { EmailImportModal } from '../components/EmailImportModal'
 
 export default function Orders() {
   const { user } = useAuth()
-  const { orders, customers, devices, users, loading, reload, customerName, technicianName } = useEntities()
+  const { orders, customers, users, loading, reload, customerName, technicianName } = useEntities()
   const [showCancelled, setShowCancelled] = useState(false)
   const [technicianFilter, setTechnicianFilter] = useState('all')
   const [mineOnly, setMineOnly] = useState(user?.role === 'technik')
@@ -137,7 +137,6 @@ export default function Orders() {
       {showForm && (
         <OrderFormModal
           customers={customers}
-          devices={devices}
           technicians={technicians}
           onClose={() => setShowForm(false)}
           onSaved={() => {

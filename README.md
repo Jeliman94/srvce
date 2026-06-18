@@ -1,9 +1,9 @@
 # VrataServis
 
 Servisní systém pro firmu zabývající se servisem garážových vrat, bran a
-závor. Běží jako webová aplikace v prohlížeči – evidence zákazníků,
-zařízení a servisních zakázek, kanban přehled zakázek, kalendář
-naplánovaných zásahů a správa uživatelů s rolemi.
+závor. Běží jako webová aplikace v prohlížeči – evidence zákazníků a
+servisních zakázek, kanban přehled zakázek, kalendář naplánovaných
+zásahů a správa uživatelů s rolemi.
 
 ## Demo
 
@@ -12,7 +12,7 @@ Nasazeno na GitHub Pages: https://jeliman94.github.io/srvce/
 ## Role
 
 - **Administrátor** – plný přístup, správa uživatelů a nastavení, jediný
-  kdo zakládá zákazníky/zařízení/zakázky a plánuje technika (přiřazení +
+  kdo zakládá zákazníky/zakázky a plánuje technika (přiřazení +
   termín zásahu).
 - **Technik** – může pracovat na jakékoliv zakázce (ne jen na té, na kterou
   je naplánovaný) – mění stav, zapisuje čas příjezdu a odjezdu, spotřebovaný
@@ -59,7 +59,7 @@ rozhraní).
 
 Typy v `src/types/index.ts` odpovídají tabulkám v
 `supabase/migrations/0001_init.sql` – to je SQL schéma připravené pro
-budoucí napojení na Supabase (zákazníci, zařízení, zakázky, uživatelé,
+budoucí napojení na Supabase (zákazníci, zakázky, uživatelé,
 role, RLS politiky). Postup migrace:
 
 1. Založit projekt na [supabase.com](https://supabase.com) a spustit
@@ -76,10 +76,10 @@ stavu.
 
 ## Struktura
 
-- `src/types` – datový model (Customer, Device, ServiceOrder, User…)
+- `src/types` – datový model (Customer, ServiceOrder, User…)
 - `src/data` – seed data a repozitáře nad `LocalTable`
 - `src/lib` – formátování, popisky stavů, oprávnění podle role
 - `src/context/AuthContext.tsx` – přihlášený uživatel
-- `src/hooks/useEntities.ts` – načtení a lookup zákazníků/zařízení/zakázek/uživatelů
+- `src/hooks/useEntities.ts` – načtení a lookup zákazníků/zakázek/uživatelů
 - `src/components` – sdílené UI a formuláře (modaly)
 - `src/pages` – jednotlivé obrazovky a routy

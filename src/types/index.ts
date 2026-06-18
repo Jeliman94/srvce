@@ -27,22 +27,6 @@ export interface Customer {
   createdAt: string
 }
 
-export type DeviceType = 'vrata' | 'brana' | 'zavora' | 'pohon' | 'jine'
-
-export interface Device {
-  id: string
-  customerId: string
-  type: DeviceType
-  manufacturer: string
-  model: string
-  serialNumber?: string
-  installDate?: string
-  warrantyUntil?: string
-  location?: string
-  note?: string
-  createdAt: string
-}
-
 export type OrderType = 'oprava' | 'servis' | 'instalace' | 'revize'
 
 export type OrderStatus =
@@ -72,7 +56,6 @@ export interface ServiceOrder {
   id: string
   number: string
   customerId: string
-  deviceId?: string
   type: OrderType
   status: OrderStatus
   priority: OrderPriority

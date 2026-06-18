@@ -7,7 +7,6 @@
 
 create type role as enum ('admin', 'technik', 'fakturace');
 create type customer_type as enum ('firma', 'osoba');
-create type device_type as enum ('vrata', 'brana', 'zavora', 'pohon', 'jine');
 create type order_type as enum ('oprava', 'servis', 'instalace', 'revize');
 create type order_status as enum (
   'nova', 'naplanovana', 'probiha', 'ceka_na_dily', 'hotovo', 'fakturovano', 'zrusena'
@@ -40,25 +39,10 @@ create table customers (
   created_at timestamptz not null default now()
 );
 
-create table devices (
-  id uuid primary key default gen_random_uuid(),
-  customer_id uuid not null references customers (id) on delete cascade,
-  type device_type not null,
-  manufacturer text not null,
-  model text not null,
-  serial_number text,
-  install_date date,
-  warranty_until date,
-  location text,
-  note text,
-  created_at timestamptz not null default now()
-);
-
 create table service_orders (
   id uuid primary key default gen_random_uuid(),
   number text not null unique,
   customer_id uuid not null references customers (id) on delete restrict,
-  device_id uuid references devices (id) on delete set null,
   type order_type not null,
   status order_status not null default 'nova',
   priority order_priority not null default 'normalni',
@@ -89,7 +73,6 @@ create table order_notes (
   created_at timestamptz not null default now()
 );
 
-create index on devices (customer_id);
 create index on service_orders (customer_id);
 create index on service_orders (assigned_technician_id);
 create index on service_orders (status);
@@ -104,7 +87,6 @@ create index on order_notes (order_id);
 
 alter table users enable row level security;
 alter table customers enable row level security;
-alter table devices enable row level security;
 alter table service_orders enable row level security;
 alter table order_parts enable row level security;
 alter table order_notes enable row level security;
@@ -120,10 +102,6 @@ create policy "admin manages users" on users for all to authenticated
 
 create policy "staff can read customers" on customers for select to authenticated using (true);
 create policy "admin manages customers" on customers for all to authenticated
-  using (current_role_name() = 'admin');
-
-create policy "staff can read devices" on devices for select to authenticated using (true);
-create policy "admin manages devices" on devices for all to authenticated
   using (current_role_name() = 'admin');
 
 create policy "staff can read orders" on service_orders for select to authenticated using (true);

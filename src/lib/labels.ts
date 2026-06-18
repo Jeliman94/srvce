@@ -1,4 +1,4 @@
-import type { DeviceType, OrderPriority, OrderStatus, OrderType } from '../types'
+import type { OrderPriority, OrderStatus, OrderType } from '../types'
 
 export const orderStatusLabels: Record<OrderStatus, string> = {
   nova: 'Nová',
@@ -37,12 +37,4 @@ export const orderPriorityColors: Record<OrderPriority, string> = {
   normalni: 'bg-blue-50 text-blue-700 ring-blue-300',
   vysoka: 'bg-orange-50 text-orange-700 ring-orange-300',
   havarie: 'bg-red-100 text-red-700 ring-red-400',
-}
-
-export const deviceTypeLabels: Record<DeviceType, string> = {
-  vrata: 'Garážová vrata',
-  brana: 'Brána',
-  zavora: 'Závora',
-  pohon: 'Pohon',
-  jine: 'Jiné',
 }

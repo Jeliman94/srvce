@@ -1,16 +1,14 @@
 import { LocalTable } from '../lib/localTable'
-import type { Customer, Device, ServiceOrder, User } from '../types'
-import { seedCustomers, seedDevices, seedOrders, seedUsers } from './seed'
+import type { Customer, ServiceOrder, User } from '../types'
+import { seedCustomers, seedOrders, seedUsers } from './seed'
 
 export const usersTable = new LocalTable<User>('users', seedUsers)
 export const customersTable = new LocalTable<Customer>('customers', seedCustomers)
-export const devicesTable = new LocalTable<Device>('devices', seedDevices)
 export const ordersTable = new LocalTable<ServiceOrder>('orders', seedOrders)
 
 export function resetDemoData() {
   usersTable.reset(seedUsers)
   customersTable.reset(seedCustomers)
-  devicesTable.reset(seedDevices)
   ordersTable.reset(seedOrders)
 }
 

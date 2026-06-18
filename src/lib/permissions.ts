@@ -3,7 +3,6 @@ import type { Role, User } from '../types'
 type Action =
   | 'manageUsers'
   | 'manageCustomers'
-  | 'manageDevices'
   | 'createOrder'
   | 'scheduleOrder'
   | 'deleteOrder'
@@ -11,7 +10,6 @@ type Action =
 const rules: Record<Action, Role[]> = {
   manageUsers: ['admin'],
   manageCustomers: ['admin'],
-  manageDevices: ['admin'],
   createOrder: ['admin'],
   scheduleOrder: ['admin'],
   deleteOrder: ['admin'],

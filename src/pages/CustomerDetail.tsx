@@ -4,12 +4,9 @@ import { useEntities } from '../hooks/useEntities'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { OrderStatusBadge } from '../components/StatusBadge'
-import { deviceTypeLabels } from '../lib/labels'
-import { formatDate } from '../lib/format'
 import { can } from '../lib/permissions'
 import { useAuth } from '../context/AuthContext'
 import { CustomerFormModal } from '../components/CustomerFormModal'
-import { DeviceFormModal } from '../components/DeviceFormModal'
 import { OrderFormModal } from '../components/OrderFormModal'
 import { customersTable } from '../data/repository'
 
@@ -17,9 +14,8 @@ export default function CustomerDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { customers, devices, orders, users, loading, reload } = useEntities()
+  const { customers, orders, users, loading, reload } = useEntities()
   const [editCustomer, setEditCustomer] = useState(false)
-  const [addDevice, setAddDevice] = useState(false)
   const [addOrder, setAddOrder] = useState(false)
 
   if (loading) return <p className="text-sm text-slate-400">Načítání…</p>
@@ -28,7 +24,6 @@ export default function CustomerDetail() {
   if (!found) return <p className="text-sm text-slate-500">Zákazník nenalezen.</p>
   const customer = found
 
-  const customerDevices = devices.filter((d) => d.customerId === customer.id)
   const customerOrders = orders
     .filter((o) => o.customerId === customer.id)
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
@@ -80,34 +75,6 @@ export default function CustomerDetail() {
         <div className="space-y-6 lg:col-span-2">
           <Card className="p-5">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900">Zařízení</h2>
-              {can(user, 'manageDevices') && (
-                <Button variant="secondary" onClick={() => setAddDevice(true)}>
-                  + Zařízení
-                </Button>
-              )}
-            </div>
-            {customerDevices.length === 0 && (
-              <p className="text-sm text-slate-400">Žádná evidovaná zařízení.</p>
-            )}
-            <ul className="space-y-2">
-              {customerDevices.map((d) => (
-                <li key={d.id} className="rounded-md border border-slate-100 p-3 text-sm">
-                  <p className="font-medium text-slate-900">
-                    {deviceTypeLabels[d.type]} – {d.manufacturer} {d.model}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {d.serialNumber && `SN: ${d.serialNumber} · `}
-                    {d.location && `${d.location} · `}
-                    Instalace: {formatDate(d.installDate)} · Záruka do: {formatDate(d.warrantyUntil)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card className="p-5">
-            <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-900">Zakázky</h2>
               {can(user, 'createOrder') && (
                 <Button variant="secondary" onClick={() => setAddOrder(true)}>
@@ -146,20 +113,9 @@ export default function CustomerDetail() {
           }}
         />
       )}
-      {addDevice && (
-        <DeviceFormModal
-          customerId={customer.id}
-          onClose={() => setAddDevice(false)}
-          onSaved={() => {
-            setAddDevice(false)
-            reload()
-          }}
-        />
-      )}
       {addOrder && (
         <OrderFormModal
           customers={[customer]}
-          devices={customerDevices}
           technicians={technicians}
           defaultCustomerId={customer.id}
           onClose={() => setAddOrder(false)}

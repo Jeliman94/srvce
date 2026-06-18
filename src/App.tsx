@@ -6,7 +6,6 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Customers from './pages/Customers'
 import CustomerDetail from './pages/CustomerDetail'
-import Devices from './pages/Devices'
 import Orders from './pages/Orders'
 import OrderDetail from './pages/OrderDetail'
 import CalendarPage from './pages/Calendar'
@@ -55,7 +54,6 @@ export default function App() {
               </RequireAuth>
             }
           />
-          <Route path="/zarizeni" element={<Devices />} />
           <Route
             path="/uzivatele"
             element={

@@ -24,7 +24,6 @@ interface OrderDraft {
   scheduledAt: string
   workStartedAt: string
   workEndedAt: string
-  deviceId: string
   parts: OrderPart[]
   notes: OrderNote[]
 }
@@ -33,7 +32,7 @@ export default function OrderDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { orders, devices, users, loading, customerName, deviceLabel } = useEntities()
+  const { orders, users, loading, customerName } = useEntities()
   const [noteText, setNoteText] = useState('')
   const [partName, setPartName] = useState('')
   const [partQty, setPartQty] = useState(1)
@@ -50,7 +49,6 @@ export default function OrderDetail() {
         scheduledAt: toDatetimeInputValue(found.scheduledAt),
         workStartedAt: toDatetimeInputValue(found.workStartedAt),
         workEndedAt: toDatetimeInputValue(found.workEndedAt),
-        deviceId: found.deviceId ?? '',
         parts: found.parts,
         notes: found.notes,
       })
@@ -63,7 +61,6 @@ export default function OrderDetail() {
 
   const editable = canEditOrder(user)
   const technicians = users.filter((u) => u.role === 'technik')
-  const customerDevices = devices.filter((d) => d.customerId === order.customerId)
 
   function update(patch: Partial<OrderDraft>) {
     setDraft((d) => (d ? { ...d, ...patch } : d))
@@ -102,7 +99,6 @@ export default function OrderDetail() {
       scheduledAt: draft.scheduledAt ? new Date(draft.scheduledAt).toISOString() : undefined,
       workStartedAt: draft.workStartedAt ? new Date(draft.workStartedAt).toISOString() : undefined,
       workEndedAt: draft.workEndedAt ? new Date(draft.workEndedAt).toISOString() : undefined,
-      deviceId: draft.deviceId || undefined,
       parts: draft.parts,
       notes: draft.notes,
       ...(draft.status === 'hotovo' ? { completedAt: new Date().toISOString() } : {}),
@@ -127,7 +123,6 @@ export default function OrderDetail() {
             <Link to={`/zakaznici/${order.customerId}`} className="hover:underline">
               {customerName(order.customerId)}
             </Link>
-            {order.deviceId && ` · ${deviceLabel(order.deviceId)}`}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -322,21 +317,6 @@ export default function OrderDetail() {
                 />
                 Servis hotov
               </label>
-            )}
-            {draft.deviceId && customerDevices.length > 0 && (
-              <FieldGroup label="Zařízení">
-                <Select
-                  disabled={!editable}
-                  value={draft.deviceId}
-                  onChange={(e) => update({ deviceId: e.target.value })}
-                >
-                  {customerDevices.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.manufacturer} {d.model}
-                    </option>
-                  ))}
-                </Select>
-              </FieldGroup>
             )}
           </div>
         </Card>

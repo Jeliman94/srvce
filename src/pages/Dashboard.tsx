@@ -9,7 +9,7 @@ const OPEN_STATUSES = ['nova', 'naplanovana', 'ceka_na_dily']
 
 export default function Dashboard() {
   const { user } = useAuth()
-  const { orders, customers, devices, loading, customerName, technicianName } = useEntities()
+  const { orders, customers, loading, customerName, technicianName } = useEntities()
 
   if (loading) return <p className="text-sm text-slate-400">Načítání…</p>
 
@@ -28,11 +28,10 @@ export default function Dashboard() {
         <p className="text-sm text-slate-500">Vítejte zpět, {user?.name}.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-3 gap-4">
         <StatCard label="Otevřené zakázky" value={openOrders.length} to="/zakazky" />
         <StatCard label="Vysoká priorita / havárie" value={urgent.length} to="/zakazky" tone="danger" />
         <StatCard label="Zákazníci" value={customers.length} to="/zakaznici" />
-        <StatCard label="Zařízení v evidenci" value={devices.length} to="/zarizeni" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

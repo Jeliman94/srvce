@@ -9,7 +9,6 @@ const navItems: { to: string; label: string; roles: Role[] }[] = [
   { to: '/hotove-servisy', label: 'Hotové servisy', roles: ['admin', 'fakturace'] },
   { to: '/kalendar', label: 'Kalendář', roles: ['admin', 'technik', 'fakturace'] },
   { to: '/zakaznici', label: 'Zákazníci', roles: ['admin'] },
-  { to: '/zarizeni', label: 'Zařízení', roles: ['admin', 'technik'] },
   { to: '/uzivatele', label: 'Uživatelé', roles: ['admin'] },
   { to: '/nastaveni', label: 'Nastavení', roles: ['admin'] },
 ]

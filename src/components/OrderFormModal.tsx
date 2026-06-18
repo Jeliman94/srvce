@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Customer, Device, OrderPriority, OrderType, User } from '../types'
+import type { Customer, OrderPriority, OrderType, User } from '../types'
 import { newId, nextOrderNumber, ordersTable } from '../data/repository'
 import { useAuth } from '../context/AuthContext'
 import { Modal } from './ui/Modal'
@@ -9,14 +9,12 @@ import { orderPriorityLabels, orderTypeLabels } from '../lib/labels'
 
 export function OrderFormModal({
   customers,
-  devices,
   technicians,
   defaultCustomerId,
   onClose,
   onSaved,
 }: {
   customers: Customer[]
-  devices: Device[]
   technicians: User[]
   defaultCustomerId?: string
   onClose: () => void
@@ -24,15 +22,12 @@ export function OrderFormModal({
 }) {
   const { user } = useAuth()
   const [customerId, setCustomerId] = useState(defaultCustomerId ?? customers[0]?.id ?? '')
-  const [deviceId, setDeviceId] = useState('')
   const [type, setType] = useState<OrderType>('oprava')
   const [priority, setPriority] = useState<OrderPriority>('normalni')
   const [description, setDescription] = useState('')
   const [scheduledAt, setScheduledAt] = useState('')
   const [assignedTechnicianId, setAssignedTechnicianId] = useState('')
   const [saving, setSaving] = useState(false)
-
-  const customerDevices = devices.filter((d) => d.customerId === customerId)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -43,7 +38,6 @@ export function OrderFormModal({
       id: newId(),
       number,
       customerId,
-      deviceId: deviceId || undefined,
       type,
       status: scheduledAt ? 'naplanovana' : 'nova',
       priority,
@@ -63,34 +57,15 @@ export function OrderFormModal({
   return (
     <Modal title="Nová zakázka" onClose={onClose} width="max-w-xl">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <FieldGroup label="Zákazník">
-            <Select
-              required
-              value={customerId}
-              onChange={(e) => {
-                setCustomerId(e.target.value)
-                setDeviceId('')
-              }}
-            >
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </Select>
-          </FieldGroup>
-          <FieldGroup label="Zařízení (nepovinné)">
-            <Select value={deviceId} onChange={(e) => setDeviceId(e.target.value)}>
-              <option value="">— nevybráno —</option>
-              {customerDevices.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.manufacturer} {d.model}
-                </option>
-              ))}
-            </Select>
-          </FieldGroup>
-        </div>
+        <FieldGroup label="Zákazník">
+          <Select required value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
+            {customers.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
+        </FieldGroup>
 
         <div className="grid grid-cols-3 gap-4">
           <FieldGroup label="Typ zakázky">

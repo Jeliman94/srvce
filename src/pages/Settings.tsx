@@ -30,7 +30,7 @@ export default function Settings() {
       <Card className="p-5">
         <h2 className="text-sm font-semibold text-slate-900">Demo data</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Obnoví výchozí ukázková data zákazníků, zařízení a zakázek a smaže vaše úpravy.
+          Obnoví výchozí ukázková data zákazníků a zakázek a smaže vaše úpravy.
         </p>
         <Button variant="danger" className="mt-3" onClick={handleReset}>
           {done ? 'Obnoveno…' : 'Obnovit demo data'}

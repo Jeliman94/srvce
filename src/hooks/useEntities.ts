@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { customersTable, devicesTable, ordersTable, usersTable } from '../data/repository'
-import type { Customer, Device, ServiceOrder, User } from '../types'
-import { deviceTypeLabels } from '../lib/labels'
+import { customersTable, ordersTable, usersTable } from '../data/repository'
+import type { Customer, ServiceOrder, User } from '../types'
 
 interface EntitiesState {
   users: User[]
   customers: Customer[]
-  devices: Device[]
   orders: ServiceOrder[]
   loading: boolean
 }
@@ -15,19 +13,17 @@ export function useEntities() {
   const [state, setState] = useState<EntitiesState>({
     users: [],
     customers: [],
-    devices: [],
     orders: [],
     loading: true,
   })
 
   const reload = useCallback(async () => {
-    const [users, customers, devices, orders] = await Promise.all([
+    const [users, customers, orders] = await Promise.all([
       usersTable.list(),
       customersTable.list(),
-      devicesTable.list(),
       ordersTable.list(),
     ])
-    setState({ users, customers, devices, orders, loading: false })
+    setState({ users, customers, orders, loading: false })
   }, [])
 
   useEffect(() => {
@@ -44,12 +40,5 @@ export function useEntities() {
     return state.users.find((u) => u.id === id)?.name ?? '—'
   }
 
-  function deviceLabel(id?: string): string {
-    if (!id) return '—'
-    const device = state.devices.find((d) => d.id === id)
-    if (!device) return '—'
-    return `${deviceTypeLabels[device.type]} – ${device.manufacturer} ${device.model}`
-  }
-
-  return { ...state, reload, customerName, technicianName, deviceLabel }
+  return { ...state, reload, customerName, technicianName }
 }
