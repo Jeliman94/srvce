@@ -103,7 +103,11 @@ export default function OrderDetail() {
       notes: draft.notes,
       ...(draft.status === 'hotovo' ? { completedAt: new Date().toISOString() } : {}),
     })
-    navigate('/zakazky')
+    if (user?.role === 'technik' && draft.status === 'hotovo') {
+      navigate(`/zakazky/${order.id}/vyuctovani`)
+    } else {
+      navigate('/zakazky')
+    }
   }
 
   function authorName(authorId: string) {
@@ -128,6 +132,9 @@ export default function OrderDetail() {
         <div className="flex items-center gap-2">
           <OrderStatusBadge status={draft.status} />
           <OrderPriorityBadge priority={draft.priority} />
+          <Link to={`/zakazky/${order.id}/vyuctovani`}>
+            <Button variant="secondary">Vyúčtování</Button>
+          </Link>
           {can(user, 'deleteOrder') && (
             <Button variant="danger" onClick={handleDelete}>
               Smazat
