@@ -45,7 +45,7 @@ export function OrderFormModal({
       customerId,
       deviceId: deviceId || undefined,
       type,
-      status: 'nova',
+      status: scheduledAt ? 'naplanovana' : 'nova',
       priority,
       description,
       assignedTechnicianId: assignedTechnicianId || undefined,

@@ -66,6 +66,10 @@ export default function OrderDetail() {
     navigate('/zakazky')
   }
 
+  async function handleMarkDone() {
+    await patch({ status: 'hotovo', completedAt: new Date().toISOString() })
+  }
+
   function authorName(authorId: string) {
     return users.find((u) => u.id === authorId)?.name ?? '—'
   }
@@ -89,6 +93,9 @@ export default function OrderDetail() {
         <div className="flex items-center gap-2">
           <OrderStatusBadge status={order.status} />
           <OrderPriorityBadge priority={order.priority} />
+          {editable && !['hotovo', 'fakturovano', 'zrusena'].includes(order.status) && (
+            <Button onClick={handleMarkDone}>Hotovo</Button>
+          )}
           {can(user, 'deleteOrder') && (
             <Button variant="danger" onClick={handleDelete}>
               Smazat
@@ -236,9 +243,13 @@ export default function OrderDetail() {
                 type="datetime-local"
                 disabled={!can(user, 'scheduleOrder')}
                 value={toDatetimeInputValue(order.scheduledAt)}
-                onChange={(e) =>
-                  patch({ scheduledAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })
-                }
+                onChange={(e) => {
+                  const scheduledAt = e.target.value ? new Date(e.target.value).toISOString() : undefined
+                  patch({
+                    scheduledAt,
+                    ...(scheduledAt && order.status === 'nova' ? { status: 'naplanovana' } : {}),
+                  })
+                }}
               />
             </FieldGroup>
             <FieldGroup label="Čas příjezdu">
