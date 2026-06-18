@@ -5,6 +5,10 @@ závor. Běží jako webová aplikace v prohlížeči – evidence zákazníků,
 zařízení a servisních zakázek, kanban přehled zakázek, kalendář
 naplánovaných zásahů a správa uživatelů s rolemi.
 
+## Demo
+
+Nasazeno na GitHub Pages: https://jeliman94.github.io/srvce/
+
 ## Role
 
 - **Administrátor** – plný přístup, správa uživatelů a nastavení.
