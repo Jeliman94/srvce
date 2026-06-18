@@ -128,6 +128,11 @@ export default function OrderDetail() {
         <div className="flex items-center gap-2">
           <OrderStatusBadge status={draft.status} />
           <OrderPriorityBadge priority={draft.priority} />
+          <Link to={`/zakazky/${order.id}/zakazkovy-list`}>
+            <Button variant="secondary">
+              {order.customerSignature ? 'Zakázkový list ✓' : 'Zakázkový list'}
+            </Button>
+          </Link>
           {can(user, 'deleteOrder') && (
             <Button variant="danger" onClick={handleDelete}>
               Smazat

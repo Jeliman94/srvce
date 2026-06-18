@@ -79,4 +79,6 @@ export interface ServiceOrder {
   notes: OrderNote[]
   createdAt: string
   createdBy: string
+  customerSignature?: string
+  signedAt?: string
 }
