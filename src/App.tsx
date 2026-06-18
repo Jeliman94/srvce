@@ -10,6 +10,7 @@ import Devices from './pages/Devices'
 import Orders from './pages/Orders'
 import OrderDetail from './pages/OrderDetail'
 import CalendarPage from './pages/Calendar'
+import CompletedServices from './pages/CompletedServices'
 import Users from './pages/Users'
 import Settings from './pages/Settings'
 import NotFound from './pages/NotFound'
@@ -31,9 +32,17 @@ export default function App() {
           <Route path="/zakazky/:id" element={<OrderDetail />} />
           <Route path="/kalendar" element={<CalendarPage />} />
           <Route
+            path="/hotove-servisy"
+            element={
+              <RequireAuth roles={['admin', 'fakturace']}>
+                <CompletedServices />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/zakaznici"
             element={
-              <RequireAuth roles={['admin', 'recepce']}>
+              <RequireAuth roles={['admin']}>
                 <Customers />
               </RequireAuth>
             }
@@ -41,7 +50,7 @@ export default function App() {
           <Route
             path="/zakaznici/:id"
             element={
-              <RequireAuth roles={['admin', 'recepce']}>
+              <RequireAuth roles={['admin']}>
                 <CustomerDetail />
               </RequireAuth>
             }

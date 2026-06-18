@@ -98,7 +98,7 @@ export default function Orders() {
               </div>
               <div className="space-y-3">
                 {columnOrders.map((order) => {
-                  const editable = canEditOrder(user, order)
+                  const editable = canEditOrder(user)
                   return (
                     <Card key={order.id} className="p-3">
                       <Link to={`/zakazky/${order.id}`} className="block">

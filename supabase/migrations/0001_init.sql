@@ -5,7 +5,7 @@
 -- Run against a fresh Supabase project, then create users via Supabase
 -- Auth and insert a matching row into public.users with the same id.
 
-create type role as enum ('admin', 'technik', 'recepce');
+create type role as enum ('admin', 'technik', 'fakturace');
 create type customer_type as enum ('firma', 'osoba');
 create type device_type as enum ('vrata', 'brana', 'zavora', 'pohon', 'jine');
 create type order_type as enum ('oprava', 'servis', 'instalace', 'revize');
@@ -97,8 +97,10 @@ create index on order_parts (order_id);
 create index on order_notes (order_id);
 
 -- Row Level Security: any authenticated staff member can read everything;
--- writes follow the same admin/recepce/technik rules as the frontend
--- (src/lib/permissions.ts). Adjust to taste once real auth is wired up.
+-- writes follow the same admin/technik/fakturace rules as the frontend
+-- (src/lib/permissions.ts) - only admin manages master data and scheduling,
+-- any technik can update any order (not just their assigned ones), and
+-- fakturace is read-only. Adjust to taste once real auth is wired up.
 
 alter table users enable row level security;
 alter table customers enable row level security;
@@ -117,30 +119,23 @@ create policy "admin manages users" on users for all to authenticated
   using (current_role_name() = 'admin');
 
 create policy "staff can read customers" on customers for select to authenticated using (true);
-create policy "admin and recepce manage customers" on customers for all to authenticated
-  using (current_role_name() in ('admin', 'recepce'));
+create policy "admin manages customers" on customers for all to authenticated
+  using (current_role_name() = 'admin');
 
 create policy "staff can read devices" on devices for select to authenticated using (true);
-create policy "admin and recepce manage devices" on devices for all to authenticated
-  using (current_role_name() in ('admin', 'recepce'));
+create policy "admin manages devices" on devices for all to authenticated
+  using (current_role_name() = 'admin');
 
 create policy "staff can read orders" on service_orders for select to authenticated using (true);
-create policy "admin and recepce manage orders" on service_orders for all to authenticated
-  using (current_role_name() in ('admin', 'recepce'));
-create policy "technik updates own orders" on service_orders for update to authenticated
-  using (current_role_name() = 'technik' and assigned_technician_id = auth.uid());
+create policy "admin manages orders" on service_orders for all to authenticated
+  using (current_role_name() = 'admin');
+create policy "technik updates any order" on service_orders for update to authenticated
+  using (current_role_name() = 'technik');
 
 create policy "staff can read order parts" on order_parts for select to authenticated using (true);
-create policy "staff manage order parts" on order_parts for all to authenticated
-  using (
-    current_role_name() in ('admin', 'recepce')
-    or exists (
-      select 1 from service_orders
-      where service_orders.id = order_parts.order_id
-        and service_orders.assigned_technician_id = auth.uid()
-    )
-  );
+create policy "admin and technik manage order parts" on order_parts for all to authenticated
+  using (current_role_name() in ('admin', 'technik'));
 
 create policy "staff can read order notes" on order_notes for select to authenticated using (true);
-create policy "staff add order notes" on order_notes for insert to authenticated
-  with check (true);
+create policy "admin and technik add order notes" on order_notes for insert to authenticated
+  with check (current_role_name() in ('admin', 'technik'));

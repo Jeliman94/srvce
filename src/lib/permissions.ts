@@ -1,19 +1,19 @@
-import type { Role, ServiceOrder, User } from '../types'
+import type { Role, User } from '../types'
 
 type Action =
   | 'manageUsers'
   | 'manageCustomers'
   | 'manageDevices'
   | 'createOrder'
-  | 'assignTechnician'
+  | 'scheduleOrder'
   | 'deleteOrder'
 
 const rules: Record<Action, Role[]> = {
   manageUsers: ['admin'],
-  manageCustomers: ['admin', 'recepce'],
-  manageDevices: ['admin', 'recepce'],
-  createOrder: ['admin', 'recepce'],
-  assignTechnician: ['admin', 'recepce'],
+  manageCustomers: ['admin'],
+  manageDevices: ['admin'],
+  createOrder: ['admin'],
+  scheduleOrder: ['admin'],
   deleteOrder: ['admin'],
 }
 
@@ -22,14 +22,15 @@ export function can(user: User | null, action: Action): boolean {
   return rules[action].includes(user.role)
 }
 
-export function canEditOrder(user: User | null, order: ServiceOrder): boolean {
+// Any technik can work on any order (arrival/departure time, material, status) —
+// only scheduling (who + when) is restricted to admin via scheduleOrder.
+export function canEditOrder(user: User | null): boolean {
   if (!user) return false
-  if (user.role === 'admin' || user.role === 'recepce') return true
-  return user.role === 'technik' && order.assignedTechnicianId === user.id
+  return user.role === 'admin' || user.role === 'technik'
 }
 
 export const roleLabels: Record<Role, string> = {
   admin: 'Administrátor',
   technik: 'Technik',
-  recepce: 'Recepce',
+  fakturace: 'Fakturace',
 }

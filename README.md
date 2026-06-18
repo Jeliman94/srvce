@@ -11,10 +11,14 @@ Nasazeno na GitHub Pages: https://jeliman94.github.io/srvce/
 
 ## Role
 
-- **Administrátor** – plný přístup, správa uživatelů a nastavení.
-- **Recepce** – zakládá zákazníky, zařízení a zakázky, plánuje technika.
-- **Technik** – vidí přidělené zakázky, mění jejich stav, přidává poznámky
-  a položky/práci.
+- **Administrátor** – plný přístup, správa uživatelů a nastavení, jediný
+  kdo zakládá zákazníky/zařízení/zakázky a plánuje technika (přiřazení +
+  termín zásahu).
+- **Technik** – může pracovat na jakékoliv zakázce (ne jen na té, na kterou
+  je naplánovaný) – mění stav, zapisuje čas příjezdu a odjezdu, spotřebovaný
+  materiál a práci.
+- **Fakturace** – jen prohlížení: vidí všechny zakázky a přehled hotových
+  servisů (odpracované hodiny + čas cesty k zákazníkovi a zpět).
 
 ## Spuštění
 
@@ -25,7 +29,7 @@ npm run dev
 
 Aplikace se otevře na `http://localhost:5173`. Na přihlašovací obrazovce
 vyberte jednoho z demo uživatelů (bez hesla) – `Jana Nováková` (admin),
-`Petr Svoboda` / `Tomáš Dvořák` (technik), `Lucie Horáková` (recepce).
+`Petr Svoboda` / `Tomáš Dvořák` (technik), `Lucie Horáková` (fakturace).
 
 ```bash
 npm run build   # typecheck + produkční build do dist/

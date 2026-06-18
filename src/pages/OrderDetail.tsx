@@ -33,7 +33,7 @@ export default function OrderDetail() {
   if (!found) return <p className="text-sm text-slate-500">Zakázka nenalezena.</p>
   const order = found
 
-  const editable = canEditOrder(user, order)
+  const editable = canEditOrder(user)
   const technicians = users.filter((u) => u.role === 'technik')
   const customerDevices = devices.filter((d) => d.customerId === order.customerId)
   const partsTotal = order.parts.reduce((sum, p) => sum + p.qty * p.unitPrice, 0)
@@ -259,7 +259,7 @@ export default function OrderDetail() {
             </FieldGroup>
             <FieldGroup label="Technik">
               <Select
-                disabled={!can(user, 'assignTechnician')}
+                disabled={!can(user, 'scheduleOrder')}
                 value={order.assignedTechnicianId ?? ''}
                 onChange={(e) => patch({ assignedTechnicianId: e.target.value || undefined })}
               >
@@ -274,14 +274,14 @@ export default function OrderDetail() {
             <FieldGroup label="Termín zásahu">
               <Input
                 type="datetime-local"
-                disabled={!editable}
+                disabled={!can(user, 'scheduleOrder')}
                 value={toDatetimeInputValue(order.scheduledAt)}
                 onChange={(e) =>
                   patch({ scheduledAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })
                 }
               />
             </FieldGroup>
-            <FieldGroup label="Začátek servisu">
+            <FieldGroup label="Čas příjezdu">
               <Input
                 type="datetime-local"
                 disabled={!editable}
@@ -291,7 +291,7 @@ export default function OrderDetail() {
                 }
               />
             </FieldGroup>
-            <FieldGroup label="Konec servisu">
+            <FieldGroup label="Čas odjezdu">
               <Input
                 type="datetime-local"
                 disabled={!editable}
