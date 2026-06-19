@@ -124,7 +124,7 @@ export function EmailImportModal({ onClose, onSaved }: { onClose: () => void; on
             <p className="text-sm text-slate-500">
               Zkontrolujte rozpoznané údaje a doplňte chybějící (např. PSČ) před uložením.
             </p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FieldGroup label="Typ zákazníka">
                 <Select
                   value={form.customerType}
@@ -139,7 +139,7 @@ export function EmailImportModal({ onClose, onSaved }: { onClose: () => void; on
               </FieldGroup>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <FieldGroup label="Ulice a č.p.">
                 <Input
                   required
@@ -155,7 +155,7 @@ export function EmailImportModal({ onClose, onSaved }: { onClose: () => void; on
               </FieldGroup>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FieldGroup label="Telefon">
                 <Input required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
               </FieldGroup>
@@ -168,7 +168,7 @@ export function EmailImportModal({ onClose, onSaved }: { onClose: () => void; on
               </FieldGroup>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FieldGroup label="Typ zakázky">
                 <Select value={orderType} onChange={(e) => setOrderType(e.target.value as OrderType)}>
                   {Object.entries(orderTypeLabels).map(([value, label]) => (

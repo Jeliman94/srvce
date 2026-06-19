@@ -46,10 +46,10 @@ export default function Orders() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-semibold text-slate-900">Zakázky</h1>
         {can(user, 'createOrder') && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => setShowEmailImport(true)}>
               Importovat z e-mailu
             </Button>

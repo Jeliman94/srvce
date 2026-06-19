@@ -34,7 +34,7 @@ export default function Users() {
       ) : (
         <Card className="divide-y divide-slate-100">
           {users.map((u) => (
-            <div key={u.id} className="flex items-center justify-between px-4 py-3">
+            <div key={u.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-900">
                   {u.name} {!u.active && <span className="text-xs text-slate-400">(neaktivní)</span>}
@@ -43,7 +43,7 @@ export default function Users() {
                   {roleLabels[u.role]} · {u.email} {u.phone && `· ${u.phone}`}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button variant="secondary" onClick={() => setEditing(u)}>
                   Upravit
                 </Button>

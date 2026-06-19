@@ -43,7 +43,7 @@ export function CustomerFormModal({
   return (
     <Modal title={customer ? 'Upravit zákazníka' : 'Nový zákazník'} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldGroup label="Typ">
             <Select
               value={form.type}
@@ -63,7 +63,7 @@ export function CustomerFormModal({
         </div>
 
         {form.type === 'firma' && (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FieldGroup label="IČO">
               <Input value={form.ico} onChange={(e) => setForm({ ...form, ico: e.target.value })} />
             </FieldGroup>
@@ -73,7 +73,7 @@ export function CustomerFormModal({
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <FieldGroup label="Ulice a č.p.">
             <Input
               required
@@ -93,7 +93,7 @@ export function CustomerFormModal({
           </FieldGroup>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldGroup label="Telefon">
             <Input
               required

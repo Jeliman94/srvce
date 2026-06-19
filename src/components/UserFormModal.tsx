@@ -46,7 +46,7 @@ export function UserFormModal({
         <FieldGroup label="Jméno">
           <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </FieldGroup>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FieldGroup label="E-mail">
             <Input
               type="email"

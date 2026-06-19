@@ -116,7 +116,7 @@ export default function OrderDetail() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <Link to="/zakazky" className="text-sm text-slate-400 hover:underline">
             ← Zakázky
@@ -129,7 +129,7 @@ export default function OrderDetail() {
             </Link>
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <OrderStatusBadge status={draft.status} />
           <OrderPriorityBadge priority={draft.priority} />
           <Link to={`/zakazky/${order.id}/vyuctovani`}>

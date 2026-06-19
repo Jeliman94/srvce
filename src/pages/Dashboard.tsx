@@ -28,7 +28,7 @@ export default function Dashboard() {
         <p className="text-sm text-slate-500">Vítejte zpět, {user?.name}.</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Otevřené zakázky" value={openOrders.length} to="/zakazky" />
         <StatCard label="Vysoká priorita / havárie" value={urgent.length} to="/zakazky" tone="danger" />
         <StatCard label="Zákazníci" value={customers.length} to="/zakaznici" />
